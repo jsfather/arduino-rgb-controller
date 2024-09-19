@@ -6,5 +6,14 @@ export default defineNuxtConfig({
     css: ['@/assets/css/main.css'],
     headlessui: {
         prefix: 'Headless'
-    }
+    },
+    nitro: {
+        devProxy: {
+            "/api": {
+                target: "http://192.168.1.14",
+                changeOrigin: true,
+                prependPath: true,
+            }
+        }
+    },
 })
