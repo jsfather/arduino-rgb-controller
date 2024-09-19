@@ -13,6 +13,10 @@ const int ledPin = LED_BUILTIN;
 void builtInLedStatus() {
   int ledState = digitalRead(LED_BUILTIN);
 
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+
   if (ledState == HIGH) {
     server.send(200, "application/json", "{\"led\":\"off\"}");
   } else {
@@ -22,6 +26,10 @@ void builtInLedStatus() {
 
 void builtInLedController() {
   StaticJsonDocument<200> jsonDoc;
+
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (server.hasArg("plain")) {
     String jsonData = server.arg("plain");
