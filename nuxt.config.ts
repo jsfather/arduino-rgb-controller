@@ -4,6 +4,9 @@ export default defineNuxtConfig({
     ssr: false,
     modules: ['@nuxtjs/tailwindcss', 'nuxt-headlessui', "@nuxt/icon", "@pinia/nuxt", '@formkit/auto-animate/nuxt', "nuxt-lodash"],
     css: ['@/assets/css/main.css'],
+    plugins: [
+        '@/plugins/moment',
+    ],
     headlessui: {
         prefix: 'Headless'
     },
