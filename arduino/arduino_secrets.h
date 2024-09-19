@@ -1,0 +1,2 @@
+#define SECRET_SSID "MobinNet_4120"
+#define SECRET_PASSWORD "2159316fce"
