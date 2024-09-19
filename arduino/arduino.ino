@@ -10,6 +10,16 @@ ESP8266WebServer server(80);
 
 const int ledPin = LED_BUILTIN;
 
+void builtInLedStatus() {
+  int ledState = digitalRead(LED_BUILTIN);
+
+  if (ledState == HIGH) {
+    server.send(200, "application/json", "{\"led\":\"off\"}");
+  } else {
+    server.send(200, "application/json", "{\"led\":\"on\"}");
+  }
+}
+
 void builtInLedController() {
   StaticJsonDocument<200> jsonDoc;
 
@@ -56,7 +66,8 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/built-in-led", HTTP_POST, builtInLedController);
+  server.on("/built-in-led/get", builtInLedStatus);
+  server.on("/built-in-led/set", HTTP_POST, builtInLedController);
 
   server.begin();
   Serial.println("Server started");
