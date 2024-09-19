@@ -28,10 +28,10 @@ void builtInLedController() {
 
     if (strcmp(ledState, "on") == 0) {
       digitalWrite(ledPin, LOW);
-      server.send(200, "application/json", "{\"message\":\"LED turned on\"}");
+      server.send(200, "application/json", "{\"led\":\"on\"}");
     } else if (strcmp(ledState, "off") == 0) {
       digitalWrite(ledPin, HIGH);
-      server.send(200, "application/json", "{\"message\":\"LED turned off\"}");
+      server.send(200, "application/json", "{\"led\":\"off\"}");
     } else {
       server.send(400, "application/json", "{\"error\":\"Invalid LED command\"}");
     }
