@@ -1,15 +1,26 @@
 import type {BuiltInLed} from "@/types/led"
 
 
-export const useTagStore = defineStore('indexStore', {
+export const useIndexStore = defineStore('indexStore', {
     state: () => ({
         builtInLed: "off",
     }),
     actions: {
-        async setBuiltInLed() {
+        async setBuiltInLed(state: BuiltInLed) {
             const toastStore = useToastStore()
             try {
-                const data = await $fetch<BuiltInLed>('http://192.168.1.14/built-in-led')
+                const data = await $fetch<BuiltInLed>('/api/built-in-led/set', {
+                    method: 'POST', body: state
+                })
+                this.builtInLed = data.led
+            } catch (error: Error | any) {
+                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: false})
+            }
+        },
+        async getBuiltInLed() {
+            const toastStore = useToastStore()
+            try {
+                const data = await $fetch<BuiltInLed>('/api/built-in-led/get')
                 this.builtInLed = data.led
             } catch (error: Error | any) {
                 toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: false})

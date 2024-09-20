@@ -10,8 +10,26 @@ ESP8266WebServer server(80);
 
 const int ledPin = LED_BUILTIN;
 
+void builtInLedStatus() {
+  int ledState = digitalRead(LED_BUILTIN);
+
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (ledState == HIGH) {
+    server.send(200, "application/json", "{\"led\":\"off\"}");
+  } else {
+    server.send(200, "application/json", "{\"led\":\"on\"}");
+  }
+}
+
 void builtInLedController() {
   StaticJsonDocument<200> jsonDoc;
+
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (server.hasArg("plain")) {
     String jsonData = server.arg("plain");
@@ -28,10 +46,10 @@ void builtInLedController() {
 
     if (strcmp(ledState, "on") == 0) {
       digitalWrite(ledPin, LOW);
-      server.send(200, "application/json", "{\"message\":\"LED turned on\"}");
+      server.send(200, "application/json", "{\"led\":\"on\"}");
     } else if (strcmp(ledState, "off") == 0) {
       digitalWrite(ledPin, HIGH);
-      server.send(200, "application/json", "{\"message\":\"LED turned off\"}");
+      server.send(200, "application/json", "{\"led\":\"off\"}");
     } else {
       server.send(400, "application/json", "{\"error\":\"Invalid LED command\"}");
     }
@@ -56,7 +74,8 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/built-in-led", HTTP_POST, builtInLedController);
+  server.on("/built-in-led/get", builtInLedStatus);
+  server.on("/built-in-led/set", HTTP_POST, builtInLedController);
 
   server.begin();
   Serial.println("Server started");
