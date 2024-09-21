@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import {useTaskStore} from "~/stores/task";
 
-const indexStore = useIndexStore()
-
-await callOnce(indexStore.getBuiltInLed)
-
 const currentTime = ref(moment().format('HH:mm:ss'))
 const time = ref('09:30')
 const color = ref('#FF0000')
 const led = ref('on')
 
-setInterval(() => {
-  currentTime.value = moment().format('HH:mm:ss')
-}, 1000)
+const indexStore = useIndexStore()
+const taskStore = useTaskStore()
+
+onBeforeMount(() => {
+  indexStore.getBuiltInLed()
+  taskStore.fetchTasks()
+  setInterval(() => {
+    currentTime.value = moment().format('HH:mm:ss')
+  }, 1000)
+})
 
 function toggleBuiltInLed() {
   if (indexStore.$state.builtInLed === 'off') {
@@ -21,8 +24,6 @@ function toggleBuiltInLed() {
     indexStore.setBuiltInLed({"led": 'off'})
   }
 }
-
-const taskStore = useTaskStore()
 
 const checkTime = (now: string) => {
   taskStore.$state.tasks.forEach(task => {
