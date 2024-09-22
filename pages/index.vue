@@ -2,9 +2,9 @@
 import {useTaskStore} from "~/stores/task";
 
 const currentTime = ref(moment().format('HH:mm:ss'))
-const time = ref('09:30')
-const color = ref('#FF0000')
-const led = ref('on')
+const time = ref('07:00')
+const color = ref('#FFFFFF')
+const led = ref('off')
 
 const indexStore = useIndexStore()
 const taskStore = useTaskStore()
@@ -70,15 +70,15 @@ const [parentList] = useAutoAnimate({duration: 100})
 </script>
 
 <template>
-  <div ref="parentList" class="flex flex-col items-center p-6 gap-6">
-    <div class="w-1/3 p-6 bg-slate-700 rounded-lg shadow flex flex-col items-center gap-6">
+  <div ref="parentList" class="flex flex-col items-center p-6 gap-6 select-none">
+    <div class="w-full lg:w-3/5 xl:1/3 p-6 bg-slate-700 rounded-lg shadow flex flex-col items-center gap-6">
       <p class="text-white font-bold text-6xl">{{ currentTime }}</p>
       <Icon
           :name="indexStore.$state.builtInLed ==='off' ? 'material-symbols:lightbulb-outline-rounded' : 'material-symbols:lightbulb-rounded'"
           size="150"
           class="bg-primary cursor-pointer flex justify-center" @click="toggleBuiltInLed"></Icon>
     </div>
-    <div class="w-1/3 flex gap-6">
+    <div class="w-full lg:w-3/5 xl:1/3 flex gap-6">
       <input v-model="time" type="time"
              class="leading-none text-white rounded-lg border border-transparent focus:outline-none focus:border focus:border-primary block w-full p-2.5 bg-slate-700"
       />
@@ -104,7 +104,7 @@ const [parentList] = useAutoAnimate({duration: 100})
     </div>
 
     <div v-for="(task, task_index) in taskStore.$state.tasks"
-         class="w-1/3 flex justify-between items-center gap-6 p-2.5 rounded-lg shadow"
+         class="w-full lg:w-3/5 xl:1/3 flex justify-between items-center gap-6 p-2.5 rounded-lg shadow"
          :class="isEqual(task , nearestTask) ? 'bg-slate-500 shadow-lg ring-2 ring-primary' : 'bg-slate-700'">
       <div class="text-white">{{ task.time }}</div>
       <div class="text-white uppercase">{{ task.led }}</div>
