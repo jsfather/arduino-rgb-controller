@@ -2,9 +2,10 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 #include "arduino_secrets.h"
+#include "config.h"
 
-const char* ssid = SECRET_SSID;
-const char* password = SECRET_PASSWORD;
+const char *ssid = SECRET_SSID;
+const char *password = SECRET_PASSWORD;
 
 ESP8266WebServer server(80);
 
@@ -16,8 +17,9 @@ struct LEDState {
 const int redPin = D2;
 const int greenPin = D3;
 const int bluePin = D4;
+const int builtInLedPin = LED_BUILTIN;
 
-LEDState ledState = { 0, "#000000" };
+LEDState ledState = { 1, "#00FF00" };
 
 void hexToRGB(const String &hex, int &r, int &g, int &b) {
   long number = strtol(hex.c_str() + 1, NULL, 16);
@@ -35,12 +37,14 @@ void handlePost() {
     ledState.color = doc["color"].as<String>();
 
     if (ledState.led == 0) {
+      digitalWrite(builtInLedPin, HIGH);
       analogWrite(redPin, 0);
       analogWrite(greenPin, 0);
       analogWrite(bluePin, 0);
     } else {
       int r, g, b;
       hexToRGB(ledState.color, r, g, b);
+      digitalWrite(builtInLedPin, LOW);
       analogWrite(redPin, r);
       analogWrite(greenPin, g);
       analogWrite(bluePin, b);
@@ -64,6 +68,11 @@ void handleGet() {
 
 void setup() {
   Serial.begin(115200);
+
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
+  }
+
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -76,12 +85,19 @@ void setup() {
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   server.on("/set", HTTP_POST, handlePost);
   server.on("/get", HTTP_GET, handleGet);
 
   server.begin();
   Serial.println("Server started");
+  int r, g, b;
+  hexToRGB(ledState.color, r, g, b);
+  digitalWrite(builtInLedPin, LOW);
+  analogWrite(redPin, r);
+  analogWrite(greenPin, g);
+  analogWrite(bluePin, b);
 }
 
 void loop() {

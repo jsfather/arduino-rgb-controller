@@ -24,3 +24,4 @@ logs
 !.env.example
 
 arduino/arduino_secrets.h
+arduino/config.h
