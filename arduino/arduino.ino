@@ -17,8 +17,9 @@ struct LEDState {
 const int redPin = D2;
 const int greenPin = D3;
 const int bluePin = D4;
+const int builtInLedPin = LED_BUILTIN;
 
-LEDState ledState = { 0, "#808080" };
+LEDState ledState = { 1, "#00FF00" };
 
 void hexToRGB(const String &hex, int &r, int &g, int &b) {
   long number = strtol(hex.c_str() + 1, NULL, 16);
@@ -36,13 +37,14 @@ void handlePost() {
     ledState.color = doc["color"].as<String>();
 
     if (ledState.led == 0) {
-      ledState = { 0, "#808080" };
+      digitalWrite(builtInLedPin, HIGH);
       analogWrite(redPin, 0);
       analogWrite(greenPin, 0);
       analogWrite(bluePin, 0);
     } else {
       int r, g, b;
       hexToRGB(ledState.color, r, g, b);
+      digitalWrite(builtInLedPin, LOW);
       analogWrite(redPin, r);
       analogWrite(greenPin, g);
       analogWrite(bluePin, b);
@@ -83,12 +85,19 @@ void setup() {
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   server.on("/set", HTTP_POST, handlePost);
   server.on("/get", HTTP_GET, handleGet);
 
   server.begin();
   Serial.println("Server started");
+  int r, g, b;
+  hexToRGB(ledState.color, r, g, b);
+  digitalWrite(builtInLedPin, LOW);
+  analogWrite(redPin, r);
+  analogWrite(greenPin, g);
+  analogWrite(bluePin, b);
 }
 
 void loop() {
