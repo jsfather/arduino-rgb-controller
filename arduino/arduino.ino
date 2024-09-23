@@ -2,9 +2,10 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 #include "arduino_secrets.h"
+#include "config.h"
 
-const char* ssid = SECRET_SSID;
-const char* password = SECRET_PASSWORD;
+const char *ssid = SECRET_SSID;
+const char *password = SECRET_PASSWORD;
 
 ESP8266WebServer server(80);
 
@@ -17,7 +18,7 @@ const int redPin = D2;
 const int greenPin = D3;
 const int bluePin = D4;
 
-LEDState ledState = { 0, "#000000" };
+LEDState ledState = { 0, "#808080" };
 
 void hexToRGB(const String &hex, int &r, int &g, int &b) {
   long number = strtol(hex.c_str() + 1, NULL, 16);
@@ -35,6 +36,7 @@ void handlePost() {
     ledState.color = doc["color"].as<String>();
 
     if (ledState.led == 0) {
+      ledState = { 0, "#808080" };
       analogWrite(redPin, 0);
       analogWrite(greenPin, 0);
       analogWrite(bluePin, 0);
@@ -64,6 +66,11 @@ void handleGet() {
 
 void setup() {
   Serial.begin(115200);
+
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
+  }
+
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
