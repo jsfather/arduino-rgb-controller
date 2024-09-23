@@ -1,29 +1,27 @@
-import type {BuiltInLed} from "@/types/led"
+import type {Led} from "@/types/led"
 
 
 export const useIndexStore = defineStore('indexStore', {
     state: () => ({
-        builtInLed: "off",
+        led: {led: 1, color: '#000000'},
     }),
     actions: {
-        async setBuiltInLed(state: BuiltInLed) {
+        async setLedState(state: Led) {
             const toastStore = useToastStore()
             try {
-                const data = await $fetch<BuiltInLed>('/arduino/built-in-led/set', {
+                this.led = await $fetch<Led>('/arduino/set', {
                     method: 'POST', body: state
                 })
-                this.builtInLed = data.led
             } catch (error: Error | any) {
-                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: false})
+                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: true})
             }
         },
-        async getBuiltInLed() {
+        async getLedState() {
             const toastStore = useToastStore()
             try {
-                const data = await $fetch<BuiltInLed>('/arduino/built-in-led/get')
-                this.builtInLed = data.led
+                this.led = await $fetch<Led>('/arduino/get')
             } catch (error: Error | any) {
-                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: false})
+                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: true})
             }
         }
     }

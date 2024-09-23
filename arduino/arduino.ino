@@ -8,74 +8,77 @@ const char* password = SECRET_PASSWORD;
 
 ESP8266WebServer server(80);
 
-const int ledPin = LED_BUILTIN;
+struct LEDState {
+  int led;
+  String color;
+};
 
-void builtInLedStatus() {
-  int ledState = digitalRead(LED_BUILTIN);
+const int redPin = D2;
+const int greenPin = D3;
+const int bluePin = D4;
 
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST");
-  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+LEDState ledState = { 0, "#000000" };
 
-  if (ledState == HIGH) {
-    server.send(200, "application/json", "{\"led\":\"off\"}");
+void hexToRGB(const String &hex, int &r, int &g, int &b) {
+  long number = strtol(hex.c_str() + 1, NULL, 16);
+  r = (number >> 16) & 0xFF;
+  g = (number >> 8) & 0xFF;
+  b = number & 0xFF;
+}
+
+void handlePost() {
+  if (server.hasArg("plain")) {
+    String body = server.arg("plain");
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, body);
+    ledState.led = doc["led"];
+    ledState.color = doc["color"].as<String>();
+
+    if (ledState.led == 0) {
+      analogWrite(redPin, 0);
+      analogWrite(greenPin, 0);
+      analogWrite(bluePin, 0);
+    } else {
+      int r, g, b;
+      hexToRGB(ledState.color, r, g, b);
+      analogWrite(redPin, r);
+      analogWrite(greenPin, g);
+      analogWrite(bluePin, b);
+    }
+
+    server.send(200, "application/json", body);
   } else {
-    server.send(200, "application/json", "{\"led\":\"on\"}");
+    server.send(400, "application/json", "{\"status\":\"error\"}");
   }
 }
 
-void builtInLedController() {
-  StaticJsonDocument<200> jsonDoc;
 
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST");
-  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (server.hasArg("plain")) {
-    String jsonData = server.arg("plain");
-    DeserializationError error = deserializeJson(jsonDoc, jsonData);
-
-    if (error) {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
-      return;
-    }
-
-    const char* ledState = jsonDoc["led"];
-
-    if (strcmp(ledState, "on") == 0) {
-      digitalWrite(ledPin, LOW);
-      server.send(200, "application/json", "{\"led\":\"on\"}");
-    } else if (strcmp(ledState, "off") == 0) {
-      digitalWrite(ledPin, HIGH);
-      server.send(200, "application/json", "{\"led\":\"off\"}");
-    } else {
-      server.send(400, "application/json", "{\"error\":\"Invalid LED command\"}");
-    }
-  } else {
-    server.send(400, "application/json", "{\"error\":\"No data received\"}");
-  }
+void handleGet() {
+  DynamicJsonDocument doc(1024);
+  doc["led"] = ledState.led;
+  doc["color"] = ledState.color;
+  String response;
+  serializeJson(doc, response);
+  server.send(200, "application/json", response);
 }
 
 void setup() {
   Serial.begin(115200);
-
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, HIGH);
-
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
-
   Serial.println("Connected to WiFi");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/built-in-led/get", builtInLedStatus);
-  server.on("/built-in-led/set", HTTP_POST, builtInLedController);
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+
+  server.on("/set", HTTP_POST, handlePost);
+  server.on("/get", HTTP_GET, handleGet);
 
   server.begin();
   Serial.println("Server started");
