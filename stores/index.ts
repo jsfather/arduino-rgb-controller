@@ -14,7 +14,7 @@ export const useIndexStore = defineStore('indexStore', {
                 })
                 this.builtInLed = data.led
             } catch (error: Error | any) {
-                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: false})
+                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: true})
             }
         },
         async getBuiltInLed() {
@@ -23,7 +23,7 @@ export const useIndexStore = defineStore('indexStore', {
                 const data = await $fetch<BuiltInLed>('/arduino/built-in-led/get')
                 this.builtInLed = data.led
             } catch (error: Error | any) {
-                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: false})
+                toastStore.addToast({message: error, type: 'error', duration: 'permanent', dismissible: true})
             }
         }
     }
