@@ -3,7 +3,7 @@ import type {Led} from "@/types/led"
 
 export const useIndexStore = defineStore('indexStore', {
     state: () => ({
-        led: {led: 1, color: '#000000'},
+        led: {led: 0, color: '#808080'},
     }),
     actions: {
         async setLedState(state: Led) {
