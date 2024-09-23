@@ -51,7 +51,7 @@ const [parentList] = useAutoAnimate({duration: 100})
     <div v-for="(task, task_index) in taskStore.$state.tasks"
          class="w-full lg:w-3/5 xl:1/3 flex justify-between items-center bg-slate-700 gap-6 p-2.5 rounded-lg shadow">
       <div class="text-white">{{ task.time }}</div>
-      <div class="text-white uppercase">{{ task.led }}</div>
+      <div class="text-white">{{ task.led === 0 ? 'OFF' : 'ON' }}</div>
       <div v-show="task.led !== 0" class="rounded-lg" style="width: 75px; height: 25px"
            :style="`background-color: ${task.color}`"></div>
       <div v-show="task.led === 0" style="width: 75px; height: 25px"></div>
