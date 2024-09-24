@@ -7,4 +7,7 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: 'Arduino RGB Controller',
+})
 </script>

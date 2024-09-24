@@ -36,27 +36,28 @@ const [parentList] = useAutoAnimate({duration: 100})
           :style="`background-color: ${indexStore.$state.led.color}`"
           @click="indexStore.setLedState({led: 0 , color: indexStore.$state.led.color})"></Icon>
     </div>
-    <div class="w-full lg:w-3/5 xl:1/3 flex gap-6">
+    <div class="w-full lg:w-3/5 xl:1/3 grid grid-cols-4 gap-4">
       <input v-model="time" type="time"
-             class="leading-none text-white rounded-lg border border-transparent focus:outline-none focus:border focus:border-primary block w-full p-2.5 bg-slate-700"
+             class="text-white rounded-lg border border-transparent focus:outline-none focus:border focus:border-primary px-2.5 bg-slate-700"
       />
 
       <select
           v-model="led"
-          class="bg-slate-700 text-white rounded-lg border border-transparent focus:outline-none focus:border focus:border-primary block w-full p-2.5">
+          class="bg-slate-700 text-white rounded-lg border border-transparent focus:outline-none focus:border focus:border-primary  p-2.5">
         <option :value="1">On</option>
         <option :value="0">Off</option>
       </select>
 
-      <div class="h-100 bg-slate-700 rounded-lg w-full py-1.5 px-2.5">
+      <div class="h-100 bg-slate-700 rounded-lg py-1.5 px-2.5">
         <input v-model="color"
                type="color"
                class="bg-slate-700 w-full h-full" :disabled="led === 0"/>
       </div>
 
-      <div class="flex justify-center items-center content-center bg-slate-700 rounded-lg w-1/3">
-        <button class="bg-slate-700 flex" @click="taskStore.addTask({time: time + ':00' , color , led})">
-          <Icon name="material-symbols:add-rounded" size="35" class="bg-white"/>
+      <div class="flex justify-center items-center content-center bg-slate-700 rounded-lg cursor-pointer"
+           @click="taskStore.addTask({time: time + ':00' , color , led})">
+        <button class="bg-slate-700 flex">
+          <Icon name="material-symbols:add-rounded" size="35" class="bg-white"/>'
         </button>
       </div>
     </div>
