@@ -54,9 +54,10 @@ const [parentList] = useAutoAnimate({duration: 100})
                class="bg-slate-700 w-full h-full" :disabled="led === 0"/>
       </div>
 
-      <div class="flex justify-center items-center content-center bg-slate-700 rounded-lg">
-        <button class="bg-slate-700 flex" @click="taskStore.addTask({time: time + ':00' , color , led})">
-          <Icon name="material-symbols:add-rounded" size="35" class="bg-white"/>
+      <div class="flex justify-center items-center content-center bg-slate-700 rounded-lg cursor-pointer"
+           @click="taskStore.addTask({time: time + ':00' , color , led})">
+        <button class="bg-slate-700 flex">
+          <Icon name="material-symbols:add-rounded" size="35" class="bg-white"/>'
         </button>
       </div>
     </div>
