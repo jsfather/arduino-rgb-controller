@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
+#include <Adafruit_NeoPixel.h>
 #include "arduino_secrets.h"
 #include "config.h"
 
@@ -14,12 +15,13 @@ struct LEDState {
   String color;
 };
 
-const int redPin = D2;
-const int greenPin = D3;
-const int bluePin = D4;
 const int builtInLedPin = LED_BUILTIN;
 
-LEDState ledState = { 1, "#00FF00" };
+LEDState ledState = { 0, "#000000" };
+
+#define PIN 4
+#define NUMPIXELS 23
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 void hexToRGB(const String &hex, int &r, int &g, int &b) {
   long number = strtol(hex.c_str() + 1, NULL, 16);
@@ -37,17 +39,19 @@ void handlePost() {
     ledState.color = doc["color"].as<String>();
 
     if (ledState.led == 0) {
+      for (int i = 0; i < NUMPIXELS; i++) {
+        pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+        pixels.show();
+      }
       digitalWrite(builtInLedPin, HIGH);
-      analogWrite(redPin, 0);
-      analogWrite(greenPin, 0);
-      analogWrite(bluePin, 0);
     } else {
       int r, g, b;
       hexToRGB(ledState.color, r, g, b);
+      for (int i = 0; i < NUMPIXELS; i++) {
+        pixels.setPixelColor(i, pixels.Color(r, g, b));
+        pixels.show();
+      }
       digitalWrite(builtInLedPin, LOW);
-      analogWrite(redPin, r);
-      analogWrite(greenPin, g);
-      analogWrite(bluePin, b);
     }
 
     server.send(200, "application/json", body);
@@ -55,7 +59,6 @@ void handlePost() {
     server.send(400, "application/json", "{\"status\":\"error\"}");
   }
 }
-
 
 void handleGet() {
   DynamicJsonDocument doc(1024);
@@ -82,9 +85,6 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  pinMode(redPin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
   server.on("/set", HTTP_POST, handlePost);
@@ -92,12 +92,8 @@ void setup() {
 
   server.begin();
   Serial.println("Server started");
-  int r, g, b;
-  hexToRGB(ledState.color, r, g, b);
   digitalWrite(builtInLedPin, LOW);
-  analogWrite(redPin, r);
-  analogWrite(greenPin, g);
-  analogWrite(bluePin, b);
+  pixels.begin();
 }
 
 void loop() {
