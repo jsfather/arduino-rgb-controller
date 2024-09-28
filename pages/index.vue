@@ -15,12 +15,30 @@ onMounted(() => {
   }, 10000);
 })
 
+
+const currentColor = computed({
+  get() {
+    return indexStore?.$state?.led?.color
+  },
+  set(newValue) {
+    indexStore.led.color = newValue
+  }
+})
+
+const updateColor = useThrottleFn((color) => {
+  indexStore.setLedState({led: 1, color: color})
+}, 1000)
+
+watch(currentColor, (newVal) => {
+  updateColor(newVal)
+})
+
 const [parentList] = useAutoAnimate({duration: 100})
 </script>
 
 <template>
   <div class="flex flex-col items-center p-6 gap-6 select-none">
-    <div class="w-full lg:w-3/5 xl:1/3 p-6 bg-slate-700 rounded-lg shadow flex flex-col items-center h-[200px]">
+    <div class="w-full lg:w-3/5 xl:1/3 p-6 bg-slate-700 rounded-lg shadow flex flex-col items-center h-[250px]">
       <Icon
           v-if="indexStore.$state.led.led === 0"
           name="material-symbols:lightbulb-outline-rounded"
@@ -35,6 +53,11 @@ const [parentList] = useAutoAnimate({duration: 100})
           class="cursor-pointer flex justify-center"
           :style="`background-color: ${indexStore.$state.led.color}`"
           @click="indexStore.setLedState({led: 0 , color: indexStore.$state.led.color})"></Icon>
+      <div class="h-100 w-1/5 bg-slate-800 rounded-lg py-1.5 px-2.5 mt-4">
+        <input v-model="currentColor"
+               type="color"
+               class="bg-slate-800 w-full h-full"/>
+      </div>
     </div>
     <div class="w-full lg:w-3/5 xl:1/3 grid grid-cols-4 gap-4">
       <input v-model="time" type="time"
@@ -57,7 +80,7 @@ const [parentList] = useAutoAnimate({duration: 100})
       <div class="flex justify-center items-center content-center bg-slate-700 rounded-lg cursor-pointer"
            @click="taskStore.addTask({time: time + ':00' , color , led})">
         <button class="bg-slate-700 flex">
-          <Icon name="material-symbols:add-rounded" size="35" class="bg-white"/>'
+          <Icon name="material-symbols:add-rounded" size="35" class="bg-white"/>
         </button>
       </div>
     </div>
